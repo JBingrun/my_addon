@@ -16,7 +16,7 @@ bl_info = {
     "tracker_url": "",
     "category": "Mesh"}
 
-#test2
+#test5
 
 import bpy , mathutils, math, os, bpy.utils.previews
 from mathutils import Vector, Matrix
