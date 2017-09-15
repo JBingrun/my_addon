@@ -16,6 +16,7 @@ bl_info = {
     "tracker_url": "",
     "category": "Mesh"}
 
+#test
 
 import bpy , mathutils, math, os, bpy.utils.previews
 from mathutils import Vector, Matrix
@@ -38,14 +39,14 @@ Enumber = bpy.types.Scene.BakeRange_end
 
 class LazyFire(bpy.types.Scene):
     def initSceneProperties(scn):
-     
+
         bpy.types.Scene.MyEnum = EnumProperty(
             items = [('Eine', 'Un', 'One') ],
             name = "Group")
         scn['MyEnum'] = 2
-     
+
         return
-     
+
     initSceneProperties(bpy.context.scene)
 
 
@@ -60,18 +61,18 @@ class LazyFire(bpy.types.Panel):
     bl_region_type = "TOOLS"
     bl_category = "JBR TOOL"
     #bl_context = "objectmode"
-     
+
     @classmethod
     def poll(cls, context):
-        return context.object and context.mode == 'OBJECT' and context.object.type == 'MESH' 
-    
+        return context.object and context.mode == 'OBJECT' and context.object.type == 'MESH'
+
     def draw(self, context):
         scn = context.scene
         dat = bpy.data
         layout = self.layout
         #layout.label("Bake Range")
         layout.label("Choose your object Group")
-        layout.prop(scn, 'MyEnum')              
+        layout.prop(scn, 'MyEnum')
         layout.prop_search(scn, "theChosenObject", scn, "objects")
         layout.prop_search(scn, "ppp", dat, "groups")
         #layout.prop(context.scene, "BakeRange_start", text="start frame")
@@ -79,7 +80,7 @@ class LazyFire(bpy.types.Panel):
         row = layout.row()
         layout.operator("showtime.button", icon_value=custom_icons["custom_icon"].icon_id)
 
-                
+
 # global variable to store icons in
 custom_icons = None
 
@@ -88,29 +89,29 @@ custom_icons = None
 class ShowTime(bpy.types.Operator):
     bl_idname = "showtime.button"
     bl_label = "SHOW  TIME!"
-    
+
     @classmethod
     def poll(cls, context):
-        return context.object and context.mode == 'OBJECT' and context.object.type == 'MESH' 
-    
-    def execute(self, context):   
-        a = len(bpy.context.selected_objects) 
+        return context.object and context.mode == 'OBJECT' and context.object.type == 'MESH'
+
+    def execute(self, context):
+        a = len(bpy.context.selected_objects)
         bs = bpy.context.scene.frame_start
         be = bpy.context.scene.frame_end
- 
+
         for objs in bpy.context.selected_objects:
-            
+
             bpy.context.scene.objects.active = objs
-            
+
             bpy.ops.nla.bake(frame_start= bs, frame_end= be, only_selected=True, visual_keying=True, clear_constraints=True, clear_parents=True, use_current_action=False, bake_types={'OBJECT'})
 
             bpy.ops.object.editmode_toggle()
             bpy.ops.mesh.merge(type='CENTER')
             bpy.ops.object.editmode_toggle()
-            
+
         bpy.ops.object.join()
         bpy.ops.object.particle_system_add()
-        
+
         #Particle def
         psys = bpy.context.object.particle_systems[-1]
         pset = psys.settings
@@ -126,11 +127,11 @@ class ShowTime(bpy.types.Operator):
         # Physics
         pset.physics_type = 'NO'
         pset.particle_size = 0.3
-     
+
         # Effector weights
         pset.effector_weights.gravity = 0
-     
-        # Display and render  
+
+        # Display and render
         pset.render_type = 'GROUP'
         pset.dupli_group = bpy.data.groups["fire"]
 
@@ -138,10 +139,10 @@ class ShowTime(bpy.types.Operator):
         return{'FINISHED'}
 
 
-      
+
 def register():
     '''
-    bpy.utils.register_class(LazyFire) 
+    bpy.utils.register_class(LazyFire)
     bpy.utils.register_class(ShowTime)
     '''
     global custom_icons
@@ -150,7 +151,7 @@ def register():
     icons_dir = os.path.join(os.path.dirname(script_path), "icons")
     custom_icons.load("custom_icon", os.path.join(icons_dir, "head_phone.png"), 'IMAGE')
     bpy.utils.register_module(__name__)
-    
+
     bpy.types.Scene.theChosenObject = bpy.props.StringProperty()
     bpy.types.Scene.ppp = bpy.props.StringProperty()
 
@@ -158,14 +159,13 @@ def unregister():
     '''
     bpy.utils.register_class(LazyFire)
     bpy.utils.register_class(ShowTime)
-    '''    
+    '''
     global custom_icons
     bpy.utils.previews.remove(custom_icons)
     bpy.utils.unregister_module(__name__)
-    
+
     del bpy.types.Object.theChosenObject
     del bpy.types.Object.ppp
 
 if __name__ == "__main__":
     register()
-
